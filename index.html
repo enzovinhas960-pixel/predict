@@ -521,7 +521,13 @@ async function doAuth(){
 }
 
 async function loadUserProfile(uid){const{data}=await sb.from('users').select('*').eq('id',uid).single();userProfile=data;}
-async function loadMarkets(){const{data}=await sb.from('markets').select('*, market_options(*)').order('closes_at');marketsData=data||[];renderMarkets();}
+async function loadMarkets(){
+  console.log('Carregando mercados...');
+  const{data,error}=await sb.from('markets').select('*, market_options(*)').order('closes_at');
+  console.log('Mercados:', data, 'Erro:', error);
+  marketsData=data||[];
+  renderMarkets();
+}
 async function loadBets(){if(!currentUser)return;const{data}=await sb.from('bets').select('*, markets(title)').eq('user_id',currentUser.id).order('created_at',{ascending:false});betsData=data||[];renderPositions();}
 
 // SCREENS
@@ -725,8 +731,27 @@ async function renderAdmin(tab){
       <div class="form-row"><label class="form-label">Encerra em</label>
         <select class="form-select" id="new-time"><option value="1">1 hora</option><option value="6">6 horas</option><option value="24">1 dia</option><option value="72">3 dias</option><option value="168">1 semana</option><option value="720">1 mês</option></select>
       </div>
+      <div id="ai-odds-result" style="display:none;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:12px;margin-bottom:10px;">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--green);font-weight:700;margin-bottom:8px;">⚡ IA Calculou as Odds</div>
+        <div style="display:flex;gap:8px;">
+          <div style="flex:1;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:8px;padding:8px;text-align:center;">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">SIM</div>
+            <div style="font-size:18px;font-weight:700;color:var(--green);" id="ai-odd-sim">-</div>
+          </div>
+          <div style="flex:1;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:8px;text-align:center;">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">NÃO</div>
+            <div style="font-size:18px;font-weight:700;color:var(--red);" id="ai-odd-nao">-</div>
+          </div>
+          <div style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center;">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">PROB.</div>
+            <div style="font-size:18px;font-weight:700;color:var(--amber);" id="ai-prob">-</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5;" id="ai-reasoning"></div>
+      </div>
+      <button class="admin-btn" style="background:var(--card2);color:var(--muted);border:1px solid var(--border);margin-bottom:8px;" onclick="calcAiOdds()">⚡ CALCULAR ODDS COM IA</button>
       <button class="admin-btn" onclick="createEvent()">CRIAR EVENTO</button>
-    </div>`;
+    </div>\``;
   }
 }
 async function encerrarEvento(id){await sb.from('markets').update({status:'closed'}).eq('id',id);showToast('🔒 Evento encerrado!');renderAdmin('events');loadMarkets();}
@@ -742,6 +767,63 @@ async function createEvent(){
   if(mkt) await sb.from('market_options').insert({market_id:mkt.id,label:'Sim',odd_sim:sim,odd_nao:nao});
   showToast('✅ Evento criado!');loadMarkets();
   document.getElementById('new-title').value='';
+}
+
+// AI ODDS CALCULATION
+let aiSimOdd = null, aiNaoOdd = null;
+
+async function calcAiOdds(){
+  const title = document.getElementById('new-title').value.trim();
+  if(!title){ showToast('⚠️ Primeiro escreve o título do evento', true); return; }
+  
+  const btn = document.querySelector('.admin-btn[onclick="calcAiOdds()"]');
+  btn.textContent = '⏳ Calculando...';
+  btn.disabled = true;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 300,
+        messages: [{
+          role: 'user',
+          content: `Analisa este evento de mercado de previsões e responde APENAS em JSON válido sem markdown:
+Evento: "${title}"
+Calcula a probabilidade realista de acontecer (SIM) considerando contexto atual.
+Aplica margem da casa de 12% nas odds.
+Fórmula: odd_sim = (1/prob_sim) * (1 - 0.12), odd_nao = (1/prob_nao) * (1 - 0.12)
+Responde exatamente neste formato JSON:
+{"prob_sim": 35, "odd_sim": 2.47, "odd_nao": 1.56, "reasoning": "Explicação curta em português de 1 linha"}`
+        }]
+      })
+    });
+    
+    const data = await response.json();
+    const text = data.content[0].text;
+    const clean = text.replace(/\`\`\`json|\`\`\`/g, '').trim();
+    const result = JSON.parse(clean);
+    
+    aiSimOdd = parseFloat(result.odd_sim.toFixed(2));
+    aiNaoOdd = parseFloat(result.odd_nao.toFixed(2));
+    
+    document.getElementById('ai-odd-sim').textContent = aiSimOdd + 'x';
+    document.getElementById('ai-odd-nao').textContent = aiNaoOdd + 'x';
+    document.getElementById('ai-prob').textContent = result.prob_sim + '%';
+    document.getElementById('ai-reasoning').textContent = result.reasoning;
+    document.getElementById('ai-odds-result').style.display = 'block';
+    
+    document.getElementById('new-sim').value = aiSimOdd;
+    document.getElementById('new-nao').value = aiNaoOdd;
+    
+    showToast('✅ Odds calculadas pela IA!');
+  } catch(e) {
+    showToast('Erro ao calcular odds: ' + e.message, true);
+  }
+  
+  btn.textContent = '⚡ RECALCULAR ODDS COM IA';
+  btn.disabled = false;
 }
 
 // AUTH STATE
@@ -772,7 +854,11 @@ sb.auth.onAuthStateChange(async(event,session)=>{
 
 async function initGuest(){
   setLoading(true,'Carregando mercados...');
-  await loadMarkets();
+  try {
+    await loadMarkets();
+  } catch(e) {
+    console.error('Erro ao carregar mercados:', e);
+  }
   setLoading(false);
   updateTopbar();
 }
