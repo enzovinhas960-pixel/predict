@@ -3,9 +3,14 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="PREDICT - O Futuro É Agora - Plataforma de Previsões e Apostas Desportivas"/>
+<meta name="keywords" content="apostas, previsões, desporto, entretenimento, previsões desportivas"/>
+<meta name="theme-color" content="#0a0a0a"/>
 <title>PREDICT — O Futuro É Agora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -22,9 +27,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 @keyframes glow{0%,100%{box-shadow:0 0 8px rgba(34,197,94,.3)}50%{box-shadow:0 0 22px rgba(34,197,94,.6)}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes slideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
 .au{animation:fadeUp .4s cubic-bezier(.16,1,.3,1) both;}
 .s1{animation-delay:.04s}.s2{animation-delay:.08s}.s3{animation-delay:.12s}.s4{animation-delay:.16s}.s5{animation-delay:.2s}
-
 .screen{display:none;flex-direction:column;height:100%;}
 .screen.active{display:flex;animation:fadeIn .25s ease;}
 
@@ -41,9 +46,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .login-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:13px 14px;color:white;font-family:var(--font-body);font-size:14px;outline:none;transition:all .2s;}
 .login-input:focus{border-color:var(--green);background:rgba(34,197,94,.04);}
 .login-input::placeholder{color:rgba(255,255,255,.18);}
-.login-btn{width:100%;background:var(--green);color:white;border:none;border-radius:10px;padding:14px;font-family:var(--font-head);font-size:17px;letter-spacing:3px;cursor:pointer;transition:all .2s;margin-top:4px;}
-.login-btn:hover{background:var(--green2);}
-.login-btn:active{transform:scale(.98);}
+.login-btn{width:100%;background:var(--green);color:white;border:none;border-radius:10px;padding:14px;font-family:var(--font-head);font-size:17px;letter-spacing:3px;cursor:pointer;transition:all .2s;}
+.login-btn:hover:not(:disabled){background:var(--green2);}
+.login-btn:active:not(:disabled){transform:scale(.98);}
+.login-btn:disabled{background:var(--muted);cursor:not-allowed;opacity:.6;}
 .login-skip{width:100%;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;}
 .login-skip:hover{border-color:var(--muted);color:var(--text);}
 .login-toggle{text-align:center;margin-top:6px;}
@@ -78,30 +84,28 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 /* ═══ SCROLL ═══ */
 .scroll-area{flex:1;overflow-y:auto;padding:10px 12px 80px;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
 
-/* ═══ MARKET CARD — fiel ao previsao.io ═══ */
+/* ═══ MARKET CARD ═══ */
 .mcard{background:var(--card);border-radius:12px;padding:0;border:1px solid var(--border);overflow:hidden;transition:border-color .2s;}
 .mcard:hover{border-color:rgba(34,197,94,.25);}
 .mcard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:12px 12px 8px;}
 .mcard-meta{font-size:11px;color:var(--muted);margin-bottom:4px;display:flex;align-items:center;gap:5px;}
 .mcard-meta-dot{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0;}
 .mcard-meta-dot.red{background:var(--red);animation:pulse 1.5s ease infinite;}
-.mcard-meta-dot.amber{background:var(--amber);}
 .mcard-title{font-size:14px;font-weight:700;line-height:1.3;color:var(--text);}
 .mcard-img{width:48px;height:48px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1px solid var(--border);overflow:hidden;}
-.mcard-img img{width:100%;height:100%;object-fit:cover;}
 .mcard-divider{height:1px;background:var(--border);margin:0 12px;}
 .mcard-opts{padding:8px 12px 12px;display:flex;flex-direction:column;gap:8px;}
 .mopt{display:flex;align-items:center;gap:8px;}
-.mopt-img{width:28px;height:28px;border-radius:50%;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0;overflow:hidden;}
-.mopt-img img{width:100%;height:100%;object-fit:cover;}
+.mopt-img{width:28px;height:28px;border-radius:50%;background:var(--card2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0;}
 .mopt-label{flex:1;font-size:13px;font-weight:500;color:var(--text);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .mopt-pct{font-size:12px;color:var(--muted);min-width:42px;text-align:right;font-weight:500;}
 .mopt-btns{display:flex;gap:5px;flex-shrink:0;}
 .btn-s{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.5);color:var(--green);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;line-height:1.4;}
 .btn-n{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);color:var(--red);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;line-height:1.4;}
-.btn-s:hover{background:var(--green);color:white;}
-.btn-n:hover{background:var(--red);color:white;}
-.mcard-closed-banner{background:rgba(239,68,68,.08);border-top:1px solid rgba(239,68,68,.2);padding:6px 12px;font-size:11px;color:var(--red);font-weight:600;letter-spacing:.5px;text-align:center;}
+.btn-s:hover:not(:disabled){background:var(--green);color:white;}
+.btn-n:hover:not(:disabled){background:var(--red);color:white;}
+.btn-s:disabled,.btn-n:disabled{opacity:.5;cursor:not-allowed;}
+.mcard-closed-banner{background:rgba(239,68,68,.08);border-top:1px solid rgba(239,68,68,.2);padding:6px 12px;font-size:11px;color:var(--red);font-weight:600;text-align:center;}
 
 /* ═══ POSITIONS ═══ */
 .section-header{padding:12px 14px 8px;border-bottom:1px solid var(--border);flex-shrink:0;}
@@ -110,7 +114,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .pos-stat{flex:1;background:var(--card2);border-radius:10px;padding:8px;border:1px solid var(--border);text-align:center;}
 .pos-stat-val{font-size:15px;font-weight:700;}
 .pos-stat-lbl{font-size:9px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.8px;}
-.pcard{background:var(--card);border-radius:12px;padding:13px;border:1px solid var(--border);}
+.pcard{background:var(--card);border-radius:12px;padding:13px;border:1px solid var(--border);transition:all .2s;}
+.pcard:hover{border-color:rgba(34,197,94,.25);}
 .pcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;}
 .pcard-title{font-size:13px;font-weight:600;line-height:1.3;flex:1;}
 .pcard-badge{border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;flex-shrink:0;}
@@ -133,18 +138,20 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .form-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:600;}
 .form-input,.form-select,.form-textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-family:var(--font-body);font-size:13px;outline:none;transition:border-color .2s;}
 .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--green);}
-.form-select option{background:var(--card2);}
+.form-select option{background:var(--card2);color:var(--text);}
 .form-textarea{resize:vertical;min-height:60px;}
 .form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .admin-btn{width:100%;background:var(--green);color:white;border:none;border-radius:10px;padding:11px;font-family:var(--font-head);font-size:15px;letter-spacing:2px;cursor:pointer;transition:all .2s;margin-top:4px;}
-.admin-btn:hover{background:var(--green2);}
+.admin-btn:hover:not(:disabled){background:var(--green2);}
+.admin-btn:disabled{background:var(--muted);cursor:not-allowed;opacity:.6;}
 .admin-stats{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
 .astat{background:var(--card);border-radius:12px;padding:12px;border:1px solid var(--border);text-align:center;}
 .astat-val{font-size:20px;font-weight:700;font-family:var(--font-head);letter-spacing:1px;}
 .astat-lbl{font-size:9px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.8px;}
-.event-admin-card{background:var(--card);border-radius:12px;padding:12px;border:1px solid var(--border);}
+.event-admin-card{background:var(--card);border-radius:12px;padding:12px;border:1px solid var(--border);transition:all .2s;}
+.event-admin-card:hover{border-color:rgba(34,197,94,.25);}
 .event-admin-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
-.event-admin-title{font-size:13px;font-weight:600;flex:1;padding-right:8px;line-height:1.3;}
+.event-admin-title{font-size:13px;font-weight:600;flex:1;line-height:1.3;}
 .ev-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;}
 .ev-badge.aberto{background:rgba(34,197,94,.12);color:var(--green);border:1px solid rgba(34,197,94,.3);}
 .ev-badge.encerrado{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.3);}
@@ -152,9 +159,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .event-admin-actions{display:flex;gap:6px;}
 .eact-btn{flex:1;border-radius:7px;padding:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid;text-align:center;transition:all .15s;}
 .eact-btn.encerrar{border-color:rgba(239,68,68,.4);color:var(--red);background:rgba(239,68,68,.06);}
-.eact-btn.encerrar:hover{background:var(--red);color:white;border-color:var(--red);}
+.eact-btn.encerrar:hover:not(:disabled){background:var(--red);color:white;border-color:var(--red);}
 .eact-btn.resolver{border-color:rgba(34,197,94,.4);color:var(--green);background:rgba(34,197,94,.06);}
-.eact-btn.resolver:hover{background:var(--green);color:white;border-color:var(--green);}
+.eact-btn.resolver:hover:not(:disabled){background:var(--green);color:white;border-color:var(--green);}
+.eact-btn:disabled{opacity:.5;cursor:not-allowed;}
 
 /* ═══ MODALS ═══ */
 .modal-overlay{display:none;position:absolute;inset:0;background:rgba(0,0,0,.8);z-index:100;align-items:flex-end;backdrop-filter:blur(5px);}
@@ -182,8 +190,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .bet-return-label{font-size:12px;color:var(--muted);}
 .bet-return-val{font-size:14px;font-weight:700;color:var(--green);}
 .bet-confirm-btn{width:100%;background:var(--green);color:white;border:none;border-radius:12px;padding:14px;font-family:var(--font-head);font-size:17px;letter-spacing:2px;cursor:pointer;transition:all .2s;}
-.bet-confirm-btn:hover{background:var(--green2);}
-.bet-confirm-btn:disabled{background:var(--muted);cursor:not-allowed;}
+.bet-confirm-btn:hover:not(:disabled){background:var(--green2);}
+.bet-confirm-btn:disabled{background:var(--muted);cursor:not-allowed;opacity:.6;}
 
 /* LOGIN REQUIRED MODAL */
 .login-req-sheet{background:#151515;border-radius:18px 18px 0 0;width:100%;padding:24px 20px 34px;position:relative;animation:slideUp .32s cubic-bezier(.16,1,.3,1);border-top:1px solid var(--border);text-align:center;}
@@ -204,7 +212,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .pix-inp:focus{border-color:var(--green);}
 .pix-code-wrap{background:var(--card2);border:1px dashed rgba(34,197,94,.35);border-radius:10px;padding:12px;margin-bottom:12px;display:none;}
 .pix-code-label{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
-.pix-code{font-size:10px;color:var(--green);word-break:break-all;line-height:1.5;}
+.pix-code{font-size:10px;color:var(--green);word-break:break-all;line-height:1.5;font-weight:600;font-family:monospace;}
 .pix-copy-btn{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:11px;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;margin-bottom:8px;transition:all .2s;}
 .pix-copy-btn:hover{border-color:var(--green);color:var(--green);}
 .pix-confirm-btn{width:100%;background:var(--green);color:white;border:none;border-radius:12px;padding:13px;font-family:var(--font-head);font-size:17px;letter-spacing:2px;cursor:pointer;}
@@ -230,19 +238,18 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .empty-state{text-align:center;padding:50px 20px;color:var(--muted);}
 .empty-state .icon{font-size:36px;margin-bottom:10px;}
 .empty-state .msg{font-size:13px;line-height:1.6;}
+
+@media(max-width:480px){.mcard-title{font-size:13px;}}
 </style>
 </head>
 <body>
 <div class="app" id="app">
-
-  <!-- LOADING -->
-  <div class="loading-overlay" id="loading">
+  <div class="loading-overlay" id="loading" style="display:none">
     <div class="spinner"></div>
     <div class="loading-text">Carregando PREDICT...</div>
   </div>
 
-  <!-- LOGIN -->
-  <div class="screen" id="screen-login">
+  <div class="screen active" id="screen-login">
     <div class="login-bg"></div>
     <div class="login-grid"></div>
     <div class="au">
@@ -256,15 +263,15 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       <div id="login-error" class="login-error"></div>
       <div class="form-row">
         <label class="field-label">Email</label>
-        <input class="login-input" type="email" id="inp-email" placeholder="seu@email.com"/>
+        <input class="login-input" type="email" id="inp-email" placeholder="seu@email.com" autocomplete="email"/>
       </div>
       <div id="username-wrap" class="form-row" style="display:none">
         <label class="field-label">Username</label>
-        <input class="login-input" type="text" id="inp-username" placeholder="Seu username"/>
+        <input class="login-input" type="text" id="inp-username" placeholder="Seu username" autocomplete="username"/>
       </div>
       <div class="form-row">
         <label class="field-label">Password</label>
-        <input class="login-input" type="password" id="inp-pass" placeholder="Sua password"/>
+        <input class="login-input" type="password" id="inp-pass" placeholder="Sua password" autocomplete="current-password"/>
       </div>
       <button class="login-btn" id="login-btn" onclick="doAuth()">ENTRAR NA PLATAFORMA</button>
       <button class="login-skip" onclick="goGuest()">Explorar sem conta</button>
@@ -272,16 +279,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     </div>
   </div>
 
-  <!-- MERCADOS -->
   <div class="screen" id="screen-main">
     <div class="topbar">
       <div class="topbar-left">
         <div class="topbar-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
         <span class="topbar-brand">PREDICT</span>
       </div>
-      <div class="topbar-right" id="topbar-right">
-        <!-- preenchido via JS -->
-      </div>
+      <div class="topbar-right" id="topbar-right"></div>
     </div>
     <div class="cats">
       <div class="cat active" onclick="filterCat(this,'all')">Em Alta</div>
@@ -312,7 +316,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     </div>
   </div>
 
-  <!-- POSIÇÕES -->
   <div class="screen" id="screen-positions">
     <div class="topbar">
       <div class="topbar-left">
@@ -344,7 +347,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     </div>
   </div>
 
-  <!-- ADMIN -->
   <div class="screen" id="screen-admin">
     <div class="topbar">
       <div class="topbar-left">
@@ -378,7 +380,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     </div>
   </div>
 
-  <!-- BET MODAL -->
   <div class="modal-overlay" id="bet-modal">
     <div class="modal-sheet">
       <div class="modal-handle"></div>
@@ -407,7 +408,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     </div>
   </div>
 
-  <!-- LOGIN REQUIRED MODAL -->
   <div class="modal-overlay" id="login-req-modal">
     <div class="login-req-sheet">
       <div class="modal-handle"></div>
@@ -419,7 +419,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     </div>
   </div>
 
-  <!-- PIX MODAL -->
   <div class="modal-overlay" id="pix-modal">
     <div class="modal-sheet">
       <div class="modal-handle"></div>
@@ -448,434 +447,452 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 </div>
 
 <script>
-const SUPABASE_URL='https://wguiawtntcuejlsgvyls.supabase.co';
-const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndndWlhd3RudGN1ZWpsc2d2eWxzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NTUzMzgsImV4cCI6MjA5MDEzMTMzOH0.b4yKAEziAzRhHS447WVoAgxpnnU_1SVkGfzOmzv1el4';
-const SUPABASE_SERVICE='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndndWlhd3RudGN1ZWpsc2d2eWxzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDU1NTMzOCwiZXhwIjoyMDkwMTMxMzM4fQ.-XvPJY5rTTLft7G9VDhcXvaL9yjthot9Xct6pGGQdVk';
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const sbPublic=supabase.createClient(SUPABASE_URL,SUPABASE_SERVICE);
+// ═══ CONFIG ═══
+const SUPABASE_URL = 'https://wguiawtntcuejlsgvyls.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndndWlhd3RudGN1ZWpsc2d2eWxzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NTUzMzgsImV4cCI6MjA5MDEzMTMzOH0.b4yKAEziAzRhHS447WVoAgxpnnU_1SVkGfzOmzv1el4';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let currentUser=null,userProfile=null,marketsData=[],betsData=[];
-let betChoice=null,currentBet=null,currentCat='all',isRegister=false;
-let currentAdminTab='overview',pixVal=0,isGuest=false;
+// ═══ STATE ═══
+let currentUser = null, userProfile = null, marketsData = [], betsData = [];
+let betChoice = null, currentBet = null, currentCat = 'all', isRegister = false;
+let currentAdminTab = 'overview', pixVal = 0, isGuest = false;
 
-function fmtBRL(v){return 'R$ '+parseFloat(v||0).toFixed(2).replace('.',',');}
-function showToast(msg,err=false){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(err?' err':'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
-function setLoading(show,msg='Carregando...'){const el=document.getElementById('loading');el.style.display=show?'flex':'none';el.querySelector('.loading-text').textContent=msg;}
+// ═══ INIT ═══
+window.addEventListener('DOMContentLoaded', async () => {
+  setLoading(true, 'Carregando mercados...');
+  await loadMarkets().catch(e => {
+    console.error('Erro ao carregar:', e);
+    showToast('⚠️ Erro ao carregar mercados', true);
+  });
+  setTimeout(() => {
+    if(!currentUser && !isGuest) {
+      setLoading(false);
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById('screen-login').classList.add('active');
+    } else {
+      setLoading(false);
+    }
+  }, 2500);
+});
 
-function updateTopbar(){
-  const el=document.getElementById('topbar-right');
-  if(currentUser&&userProfile){
-    el.innerHTML=`<div class="balance" id="balance-disp">${fmtBRL(userProfile.balance)}</div><button class="dep-btn" onclick="openPix()">Depositar</button>`;
+// ═══ UTILS ═══
+const fmtBRL = v => 'R$ ' + parseFloat(v || 0).toFixed(2).replace('.', ',');
+const escapeHtml = t => t.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#039;'}[m]));
+
+function showToast(msg, err = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (err ? ' err' : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function setLoading(show, msg = 'Carregando...') {
+  const el = document.getElementById('loading');
+  el.style.display = show ? 'flex' : 'none';
+  if(el.querySelector('.loading-text')) el.querySelector('.loading-text').textContent = msg;
+}
+
+function updateTopbar() {
+  const el = document.getElementById('topbar-right');
+  if(currentUser && userProfile) {
+    el.innerHTML = `<div class="balance" id="balance-disp">${fmtBRL(userProfile.balance)}</div><button class="dep-btn" onclick="openPix()">Depositar</button>`;
   } else {
-    el.innerHTML=`<button class="login-topbtn" onclick="goLogin()">Entrar</button>`;
+    el.innerHTML = `<button class="login-topbtn" onclick="goLogin()">Entrar</button>`;
   }
 }
-function updateBalance(){
-  const b=fmtBRL(userProfile?.balance||0);
-  const bd=document.getElementById('balance-disp');
-  const bd2=document.getElementById('balance-disp2');
-  if(bd) bd.textContent=b;
-  if(bd2) bd2.textContent=b;
+
+function updateBalance() {
+  const b = fmtBRL(userProfile?.balance || 0);
+  document.querySelectorAll('#balance-disp, #balance-disp2').forEach(el => { if(el) el.textContent = b; });
 }
 
-// AUTH
-function toggleMode(){
-  isRegister=!isRegister;
-  document.getElementById('username-wrap').style.display=isRegister?'flex':'none';
-  document.getElementById('login-btn').textContent=isRegister?'CRIAR CONTA':'ENTRAR NA PLATAFORMA';
-  document.getElementById('toggle-mode').innerHTML=isRegister?'Já tens conta? <b>Entrar</b>':'Não tens conta? <b>Regista-te aqui</b>';
-  document.getElementById('login-error').textContent='';
+// ═══ AUTH ═══
+function toggleMode() {
+  isRegister = !isRegister;
+  document.getElementById('username-wrap').style.display = isRegister ? 'flex' : 'none';
+  document.getElementById('login-btn').textContent = isRegister ? 'CRIAR CONTA' : 'ENTRAR NA PLATAFORMA';
+  document.getElementById('toggle-mode').innerHTML = isRegister ? 'Já tens conta? <b>Entrar</b>' : 'Não tens conta? <b>Regista-te aqui</b>';
+  document.getElementById('login-error').textContent = '';
 }
-function goGuest(){
-  initGuest();
-}
-function goLogin(){
-  closeLoginReq();closeBet();
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+
+function goGuest() { initGuest(); }
+
+function goLogin() {
+  closeLoginReq();
+  closeBet();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-login').classList.add('active');
 }
 
-async function doAuth(){
-  const email=document.getElementById('inp-email').value.trim();
-  const pass=document.getElementById('inp-pass').value;
-  const username=document.getElementById('inp-username').value.trim();
-  const errEl=document.getElementById('login-error');
-  errEl.textContent='';
-  if(!email||!pass){errEl.textContent='Preencha email e password.';return;}
-  setLoading(true,isRegister?'Criando conta...':'Entrando...');
-  try{
-    if(isRegister){
-      if(!username){setLoading(false);errEl.textContent='Preencha o username.';return;}
-      const {data,error}=await sb.auth.signUp({email,password:pass});
+async function doAuth() {
+  const email = document.getElementById('inp-email').value.trim();
+  const pass = document.getElementById('inp-pass').value;
+  const username = document.getElementById('inp-username').value.trim();
+  const errEl = document.getElementById('login-error');
+  const btn = document.getElementById('login-btn');
+  
+  errEl.textContent = '';
+  if(!email || !pass) { errEl.textContent = 'Preencha email e password.'; return; }
+  
+  btn.disabled = true;
+  btn.textContent = isRegister ? 'CRIANDO...' : 'ENTRANDO...';
+  setLoading(true, isRegister ? 'Criando conta...' : 'Entrando...');
+  
+  try {
+    if(isRegister) {
+      if(!username) throw new Error('Username obrigatório');
+      const {data, error} = await sb.auth.signUp({email, password: pass});
       if(error) throw error;
-      if(data.user){
-        await sb.from('users').insert({id:data.user.id,email,username,balance:100});
+      if(data.user) {
+        await sb.from('users').insert({id: data.user.id, email, username, balance: 100, created_at: new Date().toISOString()});
         showToast('✅ Conta criada! Bônus de R$100,00 adicionado!');
+        isRegister = false;
+        toggleMode();
       }
     } else {
-      const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+      const {error} = await sb.auth.signInWithPassword({email, password: pass});
       if(error) throw error;
     }
-  } catch(e){setLoading(false);errEl.textContent=e.message||'Erro ao autenticar.';}
+  } catch(e) {
+    errEl.textContent = e.message || 'Erro ao autenticar.';
+  } finally {
+    setLoading(false);
+    btn.disabled = false;
+    btn.textContent = isRegister ? 'CRIAR CONTA' : 'ENTRAR NA PLATAFORMA';
+  }
 }
 
-async function loadUserProfile(uid){const{data}=await sb.from('users').select('*').eq('id',uid).single();userProfile=data;}
-async function loadMarkets(){
-  console.log('Carregando mercados...');
-  const{data,error}=await sb.from('markets').select('*, market_options(*)').order('closes_at');
-  console.log('Mercados:', data, 'Erro:', error);
-  marketsData=data||[];
+async function loadUserProfile(uid) {
+  const {data} = await sb.from('users').select('*').eq('id', uid).single();
+  userProfile = data;
+}
+
+async function loadMarkets() {
+  const {data} = await sb.from('markets').select('*, market_options(*)').eq('status', 'open').order('closes_at');
+  marketsData = data || [];
   renderMarkets();
 }
-async function loadBets(){if(!currentUser)return;const{data}=await sb.from('bets').select('*, markets(title)').eq('user_id',currentUser.id).order('created_at',{ascending:false});betsData=data||[];renderPositions();}
 
-// SCREENS
-function goScreen(name){
-  if((name==='positions'||name==='admin')&&!currentUser){
-    document.getElementById('login-req-modal').classList.add('open');return;
+function goScreen(name) {
+  if((name === 'positions' || name === 'admin') && !currentUser) {
+    document.getElementById('login-req-modal').classList.add('open');
+    return;
   }
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('screen-'+name).classList.add('active');
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
   updateTopbar();
-  if(name==='positions') loadBets();
-  if(name==='admin') renderAdmin(currentAdminTab);
+  updateBalance();
+  if(name === 'positions') loadBets();
+  if(name === 'admin') renderAdmin(currentAdminTab);
 }
 
-function filterCat(el,cat){document.querySelectorAll('#screen-main .cat').forEach(c=>c.classList.remove('active'));el.classList.add('active');currentCat=cat;renderMarkets();}
-function selFtab(el){document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+function filterCat(el, cat) {
+  document.querySelectorAll('#screen-main .cat').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentCat = cat;
+  renderMarkets();
+}
 
-// RENDER MARKETS — fiel ao previsao.io
-function renderMarkets(){
-  const el=document.getElementById('markets-list');
-  const filtered=currentCat==='all'?marketsData:marketsData.filter(m=>m.category===currentCat);
-  if(!filtered.length){el.innerHTML=`<div class="empty-state"><div class="icon">🔍</div><div class="msg">Nenhum mercado disponível<br>nesta categoria.</div></div>`;return;}
-  el.innerHTML=filtered.map((m,i)=>{
-    const opts=m.market_options||[];
-    const closed=m.status!=='open';
-    const timeLabel=closed?'Encerrado':formatTime(m.closes_at);
-    return `
-    <div class="mcard au s${Math.min(i+1,5)}">
+function selFtab(el) {
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function renderMarkets() {
+  const el = document.getElementById('markets-list');
+  const filtered = currentCat === 'all' ? marketsData : marketsData.filter(m => m.category === currentCat);
+  if(!filtered.length) { el.innerHTML = `<div class="empty-state"><div class="icon">🔍</div><div class="msg">Nenhum mercado disponível</div></div>`; return; }
+  
+  el.innerHTML = filtered.map((m, i) => {
+    const opts = m.market_options || [];
+    const closed = m.status !== 'open';
+    const timeLabel = closed ? 'Encerrado' : formatTime(m.closes_at);
+    return `<div class="mcard au s${Math.min(i + 1, 5)}">
       <div class="mcard-top">
         <div style="flex:1">
-          <div class="mcard-meta">
-            <span class="mcard-meta-dot${closed?' red':''}"></span>
-            <span style="${closed?'color:var(--red);font-weight:700':''}">${timeLabel}</span>
-            <span>·</span>
-            <span>${m.category}</span>
-          </div>
-          <div class="mcard-title">${m.title}</div>
+          <div class="mcard-meta"><span class="mcard-meta-dot${closed ? ' red' : ''}\"></span><span style=\"${closed ? 'color:var(--red);font-weight:700' : ''}\">${timeLabel}</span><span>·</span><span>${m.category}</span></div>
+          <div class="mcard-title">${escapeHtml(m.title)}</div>
         </div>
-        <div class="mcard-img">${m.emoji||'🎯'}</div>
+        <div class="mcard-img">${m.emoji || '🎯'}</div>
       </div>
-      <div class="mcard-divider"></div>
+      <div class="mcard-divider\"></div>
       <div class="mcard-opts">
-        ${opts.map(o=>`
-          <div class="mopt">
-            <div class="mopt-img">${o.label.charAt(0).toUpperCase()}</div>
-            <div class="mopt-label">${o.label}</div>
-            <div class="mopt-pct">${o.odd_sim}x</div>
-            <div class="mopt-btns">
-              ${!closed?`<button class="btn-s" onclick="openBet('${m.id}','${o.id}','${m.title.replace(/'/g,"\\'")}','${o.label}','sim',${o.odd_sim})">Sim ${o.odd_sim}x</button>`:''}
-              ${!closed?`<button class="btn-n" onclick="openBet('${m.id}','${o.id}','${m.title.replace(/'/g,"\\'")}','${o.label}','nao',${o.odd_nao})">Não ${o.odd_nao}x</button>`:''}
-            </div>
-          </div>
-        `).join('')}
+        ${opts.map(o => `<div class="mopt\"><div class="mopt-img\">${o.label.charAt(0).toUpperCase()}</div><div class="mopt-label\">${escapeHtml(o.label)}</div><div class="mopt-pct\">${o.odd_sim}x</div><div class="mopt-btns\">
+          ${!closed ? `<button class="btn-s\" onclick=\"openBet('${m.id}','${o.id}','${escapeHtml(m.title)}','${escapeHtml(o.label)}','sim',${o.odd_sim})\">`Sim ${o.odd_sim}x</button><button class="btn-n\" onclick=\"openBet('${m.id}','${o.id}','${escapeHtml(m.title)}','${escapeHtml(o.label)}','nao',${o.odd_nao})\">`Não ${o.odd_nao}x</button>` : ''}
+        </div></div>`).join('')}
       </div>
-      ${closed?`<div class="mcard-closed-banner">ENCERRADO</div>`:''}
+      ${closed ? `<div class=\"mcard-closed-banner\">ENCERRADO</div>` : ''}
     </div>`;
   }).join('');
 }
 
-function formatTime(iso){
+function formatTime(iso) {
   if(!iso) return '';
-  const diff=new Date(iso)-new Date();
-  if(diff<0) return 'Encerrado';
-  const h=Math.floor(diff/3600000);
-  const d=Math.floor(h/24);
-  const w=Math.floor(d/7);
-  if(w>0) return w+'sem.';
-  if(d>0) return d+'d';
-  return h+'h';
+  const diff = new Date(iso) - new Date();
+  if(diff < 0) return 'Encerrado';
+  const h = Math.floor(diff / 3600000);
+  const d = Math.floor(h / 24);
+  const w = Math.floor(d / 7);
+  if(w > 0) return w + 'sem.';
+  if(d > 0) return d + 'd';
+  return h + 'h';
 }
 
-// POSITIONS
-function renderPositions(){
-  const totalBet=betsData.reduce((s,b)=>s+parseFloat(b.amount),0);
-  const totalRet=betsData.filter(b=>b.status==='open').reduce((s,b)=>s+parseFloat(b.potential_return),0);
-  document.getElementById('pos-summary').innerHTML=`
+async function loadBets() {
+  if(!currentUser) return;
+  const {data} = await sb.from('bets').select('*, markets(title)').eq('user_id', currentUser.id).order('created_at', {ascending: false});
+  betsData = data || [];
+  renderPositions();
+}
+
+function renderPositions() {
+  const totalBet = betsData.reduce((s, b) => s + parseFloat(b.amount || 0), 0);
+  const totalRet = betsData.filter(b => b.status === 'open').reduce((s, b) => s + parseFloat(b.potential_return || 0), 0);
+  
+  document.getElementById('pos-summary').innerHTML = `
     <div class="pos-stat"><div class="pos-stat-val" style="color:var(--blue)">${betsData.length}</div><div class="pos-stat-lbl">Posições</div></div>
     <div class="pos-stat"><div class="pos-stat-val" style="color:var(--amber)">${fmtBRL(totalBet)}</div><div class="pos-stat-lbl">Investido</div></div>
     <div class="pos-stat"><div class="pos-stat-val" style="color:var(--green)">${fmtBRL(totalRet)}</div><div class="pos-stat-lbl">Retorno pot.</div></div>
   `;
-  document.getElementById('balance-disp2').textContent=fmtBRL(userProfile?.balance||0);
-  const el=document.getElementById('positions-list');
-  if(!betsData.length){el.innerHTML=`<div class="empty-state"><div class="icon">📊</div><div class="msg">Nenhuma posição ainda.<br>Faça sua primeira previsão!</div></div>`;return;}
-  el.innerHTML=betsData.map((b,i)=>{
-    const profit=parseFloat(b.potential_return)-parseFloat(b.amount);
-    return `<div class="pcard au s${Math.min(i+1,5)}">
-      <div class="pcard-top">
-        <div class="pcard-title">${b.markets?.title||'Evento'}</div>
-        <div class="pcard-badge ${b.choice}">${b.choice.toUpperCase()}</div>
-      </div>
-      <div class="pcard-row"><span>Odd: ${b.odd}x</span><span class="status-pill ${b.status}">${b.status==='open'?'Aberta':'Encerrada'}</span></div>
+  
+  const el = document.getElementById('positions-list');
+  if(!betsData.length) { el.innerHTML = `<div class="empty-state"><div class="icon">📊</div><div class="msg">Nenhuma posição ainda</div></div>`; return; }
+  
+  el.innerHTML = betsData.map((b, i) => {
+    const profit = parseFloat(b.potential_return || 0) - parseFloat(b.amount || 0);
+    return `<div class="pcard au s${Math.min(i + 1, 5)}">
+      <div class="pcard-top"><div class="pcard-title">${escapeHtml(b.markets?.title || 'Evento')}</div><div class="pcard-badge ${b.choice}">${b.choice.toUpperCase()}</div></div>
+      <div class="pcard-row"><span>Odd: ${b.odd}x</span><span class="status-pill ${b.status}">${b.status === 'open' ? 'Aberta' : 'Encerrada'}</span></div>
       <div class="pcard-row" style="margin-top:8px"><span>Valor apostado</span><span class="pcard-val">${fmtBRL(b.amount)}</span></div>
       <div class="pcard-row"><span>Retorno potencial</span><span class="pcard-val">${fmtBRL(b.potential_return)}</span></div>
-      <div class="pcard-row"><span>Lucro potencial</span><span style="font-size:13px;font-weight:600;color:${profit>=0?'var(--green)':'var(--red)'}">${profit>=0?'+':''}${fmtBRL(profit)}</span></div>
+      <div class="pcard-row"><span>Lucro potencial</span><span style="font-size:13px;font-weight:600;color:${profit >= 0 ? 'var(--green)' : 'var(--red)'}">${profit >= 0 ? '+' : ''}${fmtBRL(profit)}</span></div>
     </div>`;
   }).join('');
 }
 
-// BET
-function openBet(marketId,optionId,title,label,choice,odd){
-  if(!currentUser){document.getElementById('login-req-modal').classList.add('open');return;}
-  currentBet={marketId,optionId,odd};betChoice=choice;
-  document.getElementById('bet-modal-title').textContent=title;
-  document.getElementById('bet-modal-sub').textContent=label+' · Odd: '+odd+'x';
-  document.getElementById('bchoice-s').classList.toggle('sel',choice==='sim');
-  document.getElementById('bchoice-n').classList.toggle('sel',choice==='nao');
-  document.getElementById('bet-amount').value='';
-  document.getElementById('bet-return-val').textContent='R$ 0,00';
+function openBet(marketId, optionId, title, label, choice, odd) {
+  if(!currentUser) { document.getElementById('login-req-modal').classList.add('open'); return; }
+  currentBet = {marketId, optionId, odd};
+  betChoice = choice;
+  document.getElementById('bet-modal-title').textContent = title;
+  document.getElementById('bet-modal-sub').textContent = label + ' · Odd: ' + odd + 'x';
+  document.getElementById('bchoice-s').classList.toggle('sel', choice === 'sim');
+  document.getElementById('bchoice-n').classList.toggle('sel', choice === 'nao');
+  document.getElementById('bet-amount').value = '';
+  document.getElementById('bet-return-val').textContent = 'R$ 0,00';
   document.getElementById('bet-modal').classList.add('open');
 }
-function closeBet(){document.getElementById('bet-modal').classList.remove('open');}
-function closeLoginReq(){document.getElementById('login-req-modal').classList.remove('open');}
-function selBetChoice(c){betChoice=c;document.getElementById('bchoice-s').classList.toggle('sel',c==='sim');document.getElementById('bchoice-n').classList.toggle('sel',c==='nao');updateReturn();}
-function setAmt(v){document.getElementById('bet-amount').value=v;updateReturn();}
-function updateReturn(){const a=parseFloat(document.getElementById('bet-amount').value)||0;document.getElementById('bet-return-val').textContent=fmtBRL(a*(currentBet?.odd||1));}
 
-async function confirmBet(){
-  const amt=parseFloat(document.getElementById('bet-amount').value);
-  if(!amt||amt<=0){showToast('⚠️ Insira um valor válido',true);return;}
-  if(amt>parseFloat(userProfile?.balance||0)){showToast('⚠️ Saldo insuficiente',true);return;}
-  const btn=document.getElementById('bet-confirm-btn');
-  btn.disabled=true;btn.textContent='CONFIRMANDO...';
-  try{
-    const ret=amt*currentBet.odd;
-    const newBal=parseFloat(userProfile.balance)-amt;
-    await sb.from('bets').insert({user_id:currentUser.id,market_id:currentBet.marketId,option_id:currentBet.optionId,choice:betChoice,amount:amt,odd:currentBet.odd,potential_return:ret,status:'open'});
-    await sb.from('users').update({balance:newBal}).eq('id',currentUser.id);
-    await sb.from('transactions').insert({user_id:currentUser.id,type:'bet',amount:amt,description:'Aposta realizada',status:'confirmed'});
-    userProfile.balance=newBal;updateTopbar();updateBalance();
-    closeBet();showToast('✅ Previsão confirmada!');
-  } catch(e){showToast('Erro: '+e.message,true);}
-  btn.disabled=false;btn.textContent='CONFIRMAR PREVISÃO';
+function closeBet() { document.getElementById('bet-modal').classList.remove('open'); }
+function closeLoginReq() { document.getElementById('login-req-modal').classList.remove('open'); }
+function selBetChoice(c) {
+  betChoice = c;
+  document.getElementById('bchoice-s').classList.toggle('sel', c === 'sim');
+  document.getElementById('bchoice-n').classList.toggle('sel', c === 'nao');
+  updateReturn();
+}
+function setAmt(v) { document.getElementById('bet-amount').value = v; updateReturn(); }
+function updateReturn() {
+  const a = parseFloat(document.getElementById('bet-amount').value) || 0;
+  document.getElementById('bet-return-val').textContent = fmtBRL(a * (currentBet?.odd || 1));
 }
 
-// PIX
-function openPix(){document.getElementById('pix-modal').classList.add('open');}
-function closePix(){document.getElementById('pix-modal').classList.remove('open');document.getElementById('pix-code-wrap').style.display='none';document.getElementById('pix-gerar-btn').textContent='GERAR CÓDIGO PIX';document.getElementById('pix-gerar-btn').onclick=gerarPix;}
-function selPix(el,v){document.querySelectorAll('.pix-amt').forEach(a=>a.classList.remove('sel'));el.classList.add('sel');pixVal=v;if(v>0)document.getElementById('pix-amount').value=v;updPixBtn();}
-function updPixBtn(){const v=parseFloat(document.getElementById('pix-amount').value)||pixVal;document.getElementById('pix-val-btn').textContent=(v||0).toFixed(2).replace('.',',');}
-function gerarPix(){
-  const v=parseFloat(document.getElementById('pix-amount').value)||pixVal;
-  if(!v||v<=0){showToast('⚠️ Selecione ou insira um valor',true);return;}
-  const code='00020126330014BR.GOV.BCB.PIX0111predict20255204000053039865406'+v.toFixed(2)+'5802BR5912PredictPay6009SAOPAULO62140510'+Math.random().toString(36).substr(2,8).toUpperCase()+'6304ABCD';
-  document.getElementById('pix-code-text').textContent=code;
-  document.getElementById('pix-code-wrap').style.display='block';
-  document.getElementById('pix-gerar-btn').textContent='📋 COPIAR CÓDIGO PIX';
-  document.getElementById('pix-gerar-btn').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(code);showToast('📋 Código copiado!');};
-}
-async function confirmarPix(){
-  const v=parseFloat(document.getElementById('pix-amount').value)||pixVal;
-  if(!v||v<=0){showToast('⚠️ Insira um valor',true);return;}
-  const newBal=parseFloat(userProfile.balance)+v;
-  await sb.from('users').update({balance:newBal}).eq('id',currentUser.id);
-  await sb.from('transactions').insert({user_id:currentUser.id,type:'deposit',amount:v,description:'Depósito PIX',status:'confirmed'});
-  userProfile.balance=newBal;updateTopbar();updateBalance();closePix();
-  showToast('✅ Depósito de '+fmtBRL(v)+' confirmado!');
-}
-
-// ADMIN
-function selAdminTab(el,tab){document.querySelectorAll('.atab').forEach(t=>t.classList.remove('active'));el.classList.add('active');currentAdminTab=tab;renderAdmin(tab);}
-async function renderAdmin(tab){
-  const el=document.getElementById('admin-panel');
-  if(tab==='overview'){
-    const [{count:tm},{count:om},{count:tb},{count:tu}]=await Promise.all([
-      sb.from('markets').select('*',{count:'exact',head:true}),
-      sb.from('markets').select('*',{count:'exact',head:true}).eq('status','open'),
-      sb.from('bets').select('*',{count:'exact',head:true}),
-      sb.from('users').select('*',{count:'exact',head:true}),
-    ]);
-    el.innerHTML=`<div class="admin-stats au">
-      <div class="astat"><div class="astat-val" style="color:var(--blue)">${tm||0}</div><div class="astat-lbl">Eventos Totais</div></div>
-      <div class="astat"><div class="astat-val" style="color:var(--green)">${om||0}</div><div class="astat-lbl">Abertos</div></div>
-      <div class="astat"><div class="astat-val" style="color:var(--amber)">${tb||0}</div><div class="astat-lbl">Apostas</div></div>
-      <div class="astat"><div class="astat-val" style="color:var(--blue)">${tu||0}</div><div class="astat-lbl">Utilizadores</div></div>
-    </div>`;
-  } else if(tab==='events'){
-    const{data:evts}=await sb.from('markets').select('*').order('created_at',{ascending:false});
-    el.innerHTML=`<div class="au">${(evts||[]).map(m=>`
-      <div class="event-admin-card" style="margin-bottom:8px">
-        <div class="event-admin-top">
-          <div class="event-admin-title">${m.title}</div>
-          <div class="ev-badge ${m.status==='open'?'aberto':'encerrado'}">${m.status==='open'?'Aberto':'Encerrado'}</div>
-        </div>
-        <div class="event-admin-meta">${m.category} · ${m.emoji||'🎯'}</div>
-        <div class="event-admin-actions">
-          ${m.status==='open'?`<div class="eact-btn encerrar" onclick="encerrarEvento('${m.id}')">Encerrar</div>`:`<div class="eact-btn resolver" onclick="showToast('✅ Evento resolvido!')">Resolver</div>`}
-        </div>
-      </div>`).join('')}</div>`;
-  } else {
-    el.innerHTML=`<div class="admin-form au">
-      <h3>➕ Novo Evento</h3>
-      <div class="form-row"><label class="form-label">Título</label><input class="form-input" id="new-title" placeholder="Ex: Neymar vai marcar hoje?"/></div>
-      <div class="form-row"><label class="form-label">Categoria</label>
-        <select class="form-select" id="new-cat"><option>Entretenimento</option><option>Esportes</option><option>Política</option><option>Financeiro</option><option>Cripto</option></select>
-      </div>
-      <div class="form-row-2">
-        <div class="form-row"><label class="form-label">Odd SIM</label><input class="form-input" id="new-sim" type="number" step="0.01" placeholder="1.50"/></div>
-        <div class="form-row"><label class="form-label">Odd NÃO</label><input class="form-input" id="new-nao" type="number" step="0.01" placeholder="2.50"/></div>
-      </div>
-      <div class="form-row"><label class="form-label">Emoji</label><input class="form-input" id="new-emoji" placeholder="🎯"/></div>
-      <div class="form-row"><label class="form-label">Encerra em</label>
-        <select class="form-select" id="new-time"><option value="1">1 hora</option><option value="6">6 horas</option><option value="24">1 dia</option><option value="72">3 dias</option><option value="168">1 semana</option><option value="720">1 mês</option></select>
-      </div>
-      <div id="ai-odds-result" style="display:none;background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:12px;margin-bottom:10px;">
-        <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--green);font-weight:700;margin-bottom:8px;">⚡ IA Calculou as Odds</div>
-        <div style="display:flex;gap:8px;">
-          <div style="flex:1;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:8px;padding:8px;text-align:center;">
-            <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">SIM</div>
-            <div style="font-size:18px;font-weight:700;color:var(--green);" id="ai-odd-sim">-</div>
-          </div>
-          <div style="flex:1;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:8px;text-align:center;">
-            <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">NÃO</div>
-            <div style="font-size:18px;font-weight:700;color:var(--red);" id="ai-odd-nao">-</div>
-          </div>
-          <div style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center;">
-            <div style="font-size:10px;color:var(--muted);margin-bottom:3px;">PROB.</div>
-            <div style="font-size:18px;font-weight:700;color:var(--amber);" id="ai-prob">-</div>
-          </div>
-        </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5;" id="ai-reasoning"></div>
-      </div>
-      <button class="admin-btn" style="background:var(--card2);color:var(--muted);border:1px solid var(--border);margin-bottom:8px;" onclick="calcAiOdds()">⚡ CALCULAR ODDS COM IA</button>
-      <button class="admin-btn" onclick="criarEvento()">CRIAR EVENTO</button>
-    </div>\``;
+async function confirmBet() {
+  const amt = parseFloat(document.getElementById('bet-amount').value);
+  if(!amt || amt <= 0) { showToast('⚠️ Insira um valor válido', true); return; }
+  if(amt > parseFloat(userProfile?.balance || 0)) { showToast('⚠️ Saldo insuficiente', true); return; }
+  
+  const btn = document.getElementById('bet-confirm-btn');
+  btn.disabled = true;
+  btn.textContent = 'CONFIRMANDO...';
+  
+  try {
+    const ret = amt * currentBet.odd;
+    const newBal = parseFloat(userProfile.balance) - amt;
+    
+    await sb.from('bets').insert({
+      user_id: currentUser.id, market_id: currentBet.marketId, option_id: currentBet.optionId,
+      choice: betChoice, amount: amt, odd: currentBet.odd, potential_return: ret,
+      status: 'open', created_at: new Date().toISOString()
+    });
+    
+    await sb.from('users').update({balance: newBal}).eq('id', currentUser.id);
+    await sb.from('transactions').insert({user_id: currentUser.id, type: 'bet', amount: amt, description: 'Aposta realizada', status: 'confirmed', created_at: new Date().toISOString()});
+    
+    userProfile.balance = newBal;
+    updateTopbar();
+    updateBalance();
+    closeBet();
+    showToast('✅ Previsão confirmada!');
+    await loadMarkets();
+    await loadBets();
+  } catch(e) {
+    showToast('Erro: ' + (e.message || 'Erro desconhecido'), true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'CONFIRMAR PREVISÃO';
   }
 }
-async function encerrarEvento(id){await sb.from('markets').update({status:'closed'}).eq('id',id);showToast('🔒 Evento encerrado!');renderAdmin('events');loadMarkets();}
-async function criarEvento(){
-  const title=document.getElementById('new-title').value.trim();
-  const cat=document.getElementById('new-cat').value;
-  const sim=parseFloat(document.getElementById('new-sim').value)||1.5;
-  const nao=parseFloat(document.getElementById('new-nao').value)||2.5;
-  const emoji=document.getElementById('new-emoji').value||'🎯';
-  const hours=parseInt(document.getElementById('new-time').value)||24;
-  if(!title){showToast('⚠️ Preencha o título',true);return;}
-  const{data:mkt}=await sb.from('markets').insert({title,category:cat,emoji,closes_at:new Date(Date.now()+hours*3600000).toISOString(),status:'open'}).select().single();
-  if(mkt) await sb.from('market_options').insert({market_id:mkt.id,label:'Sim',odd_sim:sim,odd_nao:nao});
+
+function openPix() { document.getElementById('pix-modal').classList.add('open'); }
+function closePix() {
+  document.getElementById('pix-modal').classList.remove('open');
+  document.getElementById('pix-code-wrap').style.display = 'none';
+  document.getElementById('pix-gerar-btn').textContent = 'GERAR CÓDIGO PIX';
+  document.getElementById('pix-amount').value = '';
+  pixVal = 0;
+}
+function selPix(el, v) {
+  document.querySelectorAll('.pix-amt').forEach(a => a.classList.remove('sel'));
+  el.classList.add('sel');
+  pixVal = v;
+  if(v > 0) document.getElementById('pix-amount').value = v;
+  updPixBtn();
+}
+function updPixBtn() {
+  const v = parseFloat(document.getElementById('pix-amount').value) || pixVal;
+  document.getElementById('pix-val-btn').textContent = (v || 0).toFixed(2).replace('.', ',');
+}
+function gerarPix() {
+  const v = parseFloat(document.getElementById('pix-amount').value) || pixVal;
+  if(!v || v <= 0) { showToast('⚠️ Insira um valor', true); return; }
+  const code = '00020126330014BR.GOV.BCB.PIX0111predict20255204000053039865406' + v.toFixed(2) + '5802BR5912PredictPay6009SAOPAULO62140510' + Math.random().toString(36).substr(2, 8).toUpperCase() + '6304ABCD';
+  document.getElementById('pix-code-text').textContent = code;
+  document.getElementById('pix-code-wrap').style.display = 'block';
+  document.getElementById('pix-gerar-btn').textContent = '📋 COPIAR CÓDIGO PIX';
+  document.getElementById('pix-gerar-btn').onclick = () => {
+    navigator.clipboard?.writeText(code).then(() => showToast('📋 Código copiado!'));
+  };
+}
+async function confirmarPix() {
+  const v = parseFloat(document.getElementById('pix-amount').value) || pixVal;
+  if(!v || v <= 0) { showToast('⚠️ Insira um valor', true); return; }
+  const newBal = parseFloat(userProfile.balance) + v;
+  await sb.from('users').update({balance: newBal}).eq('id', currentUser.id);
+  await sb.from('transactions').insert({user_id: currentUser.id, type: 'deposit', amount: v, description: 'Depósito PIX', status: 'confirmed', created_at: new Date().toISOString()});
+  userProfile.balance = newBal;
+  updateTopbar();
+  updateBalance();
+  closePix();
+  showToast('✅ Depósito de ' + fmtBRL(v) + ' confirmado!');
+}
+
+function selAdminTab(el, tab) {
+  document.querySelectorAll('.atab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentAdminTab = tab;
+  renderAdmin(tab);
+}
+
+async function renderAdmin(tab) {
+  const el = document.getElementById('admin-panel');
+  if(tab === 'overview') {
+    const [{count: tm}, {count: om}, {count: tb}, {count: tu}] = await Promise.all([
+      sb.from('markets').select('*', {count: 'exact', head: true}),
+      sb.from('markets').select('*', {count: 'exact', head: true}).eq('status', 'open'),
+      sb.from('bets').select('*', {count: 'exact', head: true}),
+      sb.from('users').select('*', {count: 'exact', head: true}),
+    ]);
+    el.innerHTML = `<div class="admin-stats au">
+      <div class="astat"><div class="astat-val" style="color:var(--blue)">${tm || 0}</div><div class="astat-lbl">Eventos Totais</div></div>
+      <div class="astat"><div class="astat-val" style="color:var(--green)">${om || 0}</div><div class="astat-lbl">Abertos</div></div>
+      <div class="astat"><div class="astat-val" style="color:var(--amber)">${tb || 0}</div><div class="astat-lbl">Apostas</div></div>
+      <div class="astat"><div class="astat-val" style="color:var(--blue)">${tu || 0}</div><div class="astat-lbl">Utilizadores</div></div>
+    </div>`;
+  } else if(tab === 'events') {
+    const {data: evts} = await sb.from('markets').select('*').order('created_at', {ascending: false});
+    el.innerHTML = `<div class="au">${(evts || []).map(m => `<div class="event-admin-card" style="margin-bottom:8px">
+      <div class="event-admin-top"><div class="event-admin-title">${escapeHtml(m.title)}</div><div class="ev-badge ${m.status === 'open' ? 'aberto' : 'encerrado'}">${m.status === 'open' ? 'Aberto' : 'Encerrado'}</div></div>
+      <div class="event-admin-meta">${m.category} · ${m.emoji || '🎯'}</div>
+      <div class="event-admin-actions">
+        ${m.status === 'open' ? `<div class="eact-btn encerrar" onclick="encerrarEvento('${m.id}')">Encerrar</div>` : `<div class="eact-btn resolver">Resolvido</div>`}
+      </div>
+    </div>`).join('')}</div>`;
+  } else {
+    el.innerHTML = `<div class="admin-form au"><h3>➕ Novo Evento</h3>
+      <div class="form-row"><label class="form-label">Título</label><input class="form-input" id="new-title" placeholder="Ex: Neymar vai marcar?"/></div>
+      <div class="form-row"><label class="form-label">Categoria</label><select class="form-select" id="new-cat"><option>Entretenimento</option><option>Esportes</option><option>Política</option><option>Financeiro</option><option>Cripto</option></select></div>
+      <div class="form-row-2">
+        <div class="form-row"><label class="form-label">Odd SIM</label><input class="form-input" id="new-sim" type="number" step="0.01" placeholder="1.50" min="1"/></div>
+        <div class="form-row"><label class="form-label">Odd NÃO</label><input class="form-input" id="new-nao" type="number" step="0.01" placeholder="2.50" min="1"/></div>
+      </div>
+      <div class="form-row"><label class="form-label">Emoji</label><input class="form-input" id="new-emoji" maxlength="2" placeholder="🎯"/></div>
+      <div class="form-row"><label class="form-label">Encerra em</label><select class="form-select" id="new-time"><option value="1">1 hora</option><option value="6">6 horas</option><option value="24">1 dia</option><option value="72">3 dias</option><option value="168">1 semana</option><option value="720">1 mês</option></select></div>
+      <button class="admin-btn" onclick="criarEvento()">CRIAR EVENTO</button>
+    </div>`;
+  }
+}
+
+async function encerrarEvento(id) {
+  await sb.from('markets').update({status: 'closed'}).eq('id', id);
+  showToast('🔒 Evento encerrado!');
+  renderAdmin('events');
+  await loadMarkets();
+}
+
+async function criarEvento() {
+  const title = document.getElementById('new-title').value.trim();
+  const cat = document.getElementById('new-cat').value;
+  const sim = parseFloat(document.getElementById('new-sim').value) || 1.5;
+  const nao = parseFloat(document.getElementById('new-nao').value) || 2.5;
+  const emoji = document.getElementById('new-emoji').value || '🎯';
+  const hours = parseInt(document.getElementById('new-time').value) || 24;
+  
+  if(!title) { showToast('⚠️ Preencha o título', true); return; }
+  if(sim < 1 || nao < 1) { showToast('⚠️ Odds devem ser >= 1.00', true); return; }
+  
+  const {data: mkt} = await sb.from('markets').insert({
+    title, category: cat, emoji, closes_at: new Date(Date.now() + hours * 3600000).toISOString(),
+    status: 'open', created_at: new Date().toISOString()
+  }).select().single();
+  
+  if(mkt) {
+    await sb.from('market_options').insert({market_id: mkt.id, label: 'Sim', odd_sim: sim, odd_nao: nao});
+  }
+  
   showToast('✅ Evento criado!');
-  document.getElementById('new-title').value='';
-  document.getElementById('new-sim').value='';
-  document.getElementById('new-nao').value='';
-  document.getElementById('new-emoji').value='';
-  document.getElementById('ai-odds-result').style.display='none';
+  document.getElementById('new-title').value = '';
+  document.getElementById('new-sim').value = '';
+  document.getElementById('new-nao').value = '';
+  document.getElementById('new-emoji').value = '';
   await loadMarkets();
   goScreen('main');
 }
 
-// AI ODDS CALCULATION
-let aiSimOdd = null, aiNaoOdd = null;
-
-function calcAiOdds(){
-  const title = document.getElementById('new-title').value.trim().toLowerCase();
-  const cat = document.getElementById('new-cat').value;
-  if(!title){ showToast('⚠️ Primeiro escreve o título do evento', true); return; }
-
-  const btn = document.querySelector('button[onclick="calcAiOdds()"]');
-  btn.textContent = '⏳ Calculando...';
-  btn.disabled = true;
-
-  setTimeout(()=>{
-    const MARGEM = 0.12;
-
-    // palavras que aumentam probabilidade de SIM
-    const altaProb = ['vai','será','irá','pode','deve','confirma','ganha','vence','lidera','favorito','provável','esperado','anuncia'];
-    const baixaProb = ['não','nunca','jamais','improvável','difícil','impossível','nega','descarta','recusa','perde'];
-    const incerto = ['talvez','quem sabe','possível','pode ser','será que','algum dia'];
-
-    // base por categoria
-    const baseProb = {
-      'Entretenimento': 45,
-      'Esportes': 40,
-      'Política': 35,
-      'Financeiro': 38,
-      'Cripto': 42,
-    };
-
-    let prob = baseProb[cat] || 40;
-
-    // ajusta por palavras-chave
-    altaProb.forEach(w => { if(title.includes(w)) prob += 8; });
-    baixaProb.forEach(w => { if(title.includes(w)) prob -= 10; });
-    incerto.forEach(w => { if(title.includes(w)) prob += 2; });
-
-    // limita entre 15% e 85%
-    prob = Math.max(15, Math.min(85, prob));
-    const probNao = 100 - prob;
-
-    // calcula odds com margem de 12%
-    const oddSim = parseFloat(((1 / (prob/100)) * (1 - MARGEM)).toFixed(2));
-    const oddNao = parseFloat(((1 / (probNao/100)) * (1 - MARGEM)).toFixed(2));
-
-    aiSimOdd = oddSim;
-    aiNaoOdd = oddNao;
-
-    // reasoning automático
-    let reasoning = '';
-    if(prob >= 60) reasoning = `Alta probabilidade de ocorrer (${prob}%). Odd SIM mais baixa reflete o favoritismo.`;
-    else if(prob >= 40) reasoning = `Evento equilibrado (${prob}% SIM). Mercado competitivo com boas oportunidades.`;
-    else reasoning = `Evento improvável (${prob}% SIM). Odd SIM alta reflete o risco elevado.`;
-
-    document.getElementById('ai-odd-sim').textContent = oddSim + 'x';
-    document.getElementById('ai-odd-nao').textContent = oddNao + 'x';
-    document.getElementById('ai-prob').textContent = prob + '%';
-    document.getElementById('ai-reasoning').textContent = reasoning;
-    document.getElementById('ai-odds-result').style.display = 'block';
-
-    document.getElementById('new-sim').value = oddSim;
-    document.getElementById('new-nao').value = oddNao;
-
-    showToast('✅ Odds calculadas com sucesso!');
-    btn.textContent = '⚡ RECALCULAR ODDS COM IA';
-    btn.disabled = false;
-  }, 1200);
-}
-
-// AUTH STATE
-sb.auth.onAuthStateChange(async(event,session)=>{
-  if(session?.user){
-    currentUser=session.user;isGuest=false;
-    setLoading(true,'Carregando dados...');
+// ═══ AUTH STATE ═══
+sb.auth.onAuthStateChange(async (event, session) => {
+  if(session?.user) {
+    currentUser = session.user;
+    isGuest = false;
+    setLoading(true, 'Carregando dados...');
     await loadUserProfile(currentUser.id);
     await loadMarkets();
     setLoading(false);
-    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-main').classList.add('active');
     updateTopbar();
   } else {
-    currentUser=null;userProfile=null;
-    if(isGuest){
-      setLoading(true,'Carregando mercados...');
-      await loadMarkets();
+    currentUser = null;
+    userProfile = null;
+    if(isGuest) {
       setLoading(false);
       updateTopbar();
     } else {
       setLoading(false);
-      document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
       document.getElementById('screen-login').classList.add('active');
     }
   }
 });
 
-async function initGuest(){
-  setLoading(true,'Carregando mercados...');
-  try {
-    await loadMarkets();
-  } catch(e) {
-    console.error('Erro ao carregar mercados:', e);
-  }
+async function initGuest() {
+  setLoading(true, 'Carregando mercados...');
+  await loadMarkets().catch(() => showToast('⚠️ Erro ao carregar', true));
   setLoading(false);
+  isGuest = true;
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-main').classList.add('active');
   updateTopbar();
 }
 </script>
