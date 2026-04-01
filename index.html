@@ -441,6 +441,20 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 </div>
 
 <script>
+// ─── CHROMEBOOK COMPAT ────────────────────────────────────────────────────────
+// O Supabase JS v2 usa BroadcastChannel.postMessage() internamente para sincronizar
+// o estado de autenticação entre abas. No ChromeOS/Chrome com políticas restritivas,
+// este postMessage lança DataCloneError ao tentar serializar o objeto session,
+// propagando uma exceção não capturada que aborta o handler e impede os mercados
+// de carregar. Patch aplicado antes de createClient para suprimir só esse erro.
+if (typeof BroadcastChannel !== 'undefined') {
+  const _origPost = BroadcastChannel.prototype.postMessage;
+  BroadcastChannel.prototype.postMessage = function(msg) {
+    try { _origPost.call(this, msg); }
+    catch(e) { if (e.name !== 'DataCloneError') throw e; }
+  };
+}
+
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://wguiawtntcuejlsgvyls.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndndWlhd3RudGN1ZWpsc2d2eWxzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NTUzMzgsImV4cCI6MjA5MDEzMTMzOH0.b4yKAEziAzRhHS447WVoAgxpnnU_1SVkGfzOmzv1el4';
@@ -1637,7 +1651,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
     document.getElementById('screen-main').classList.add('active');
     updateTopbar();
     updateBalance();
-    startRealtimeOdds();
+    try { startRealtimeOdds(); } catch(e) { console.warn('Realtime indisponível:', e.message); }
     // Pede permissão de notificação após login
     setTimeout(async () => {
       const granted = await requestNotifPermission();
