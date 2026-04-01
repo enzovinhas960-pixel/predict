@@ -1627,9 +1627,14 @@ async function loadBets() {
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
+// race() garante que o loading é sempre removido mesmo que o Supabase não responda
+function withTimeout(promise, ms) {
+  return Promise.race([promise, new Promise(r => setTimeout(r, ms))]);
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
   setLoading(true);
-  await loadMarkets().catch(e => console.error(e));
+  await withTimeout(loadMarkets().catch(e => console.error(e)), 5000);
   setTimeout(() => { setLoading(false); goGuest(); }, 500);
 });
 
@@ -1638,14 +1643,22 @@ sb.auth.onAuthStateChange(async (event, session) => {
     currentUser = session.user;
     isGuest = false;
     setLoading(true);
-    await loadUserProfile(currentUser.id);
-    // Se perfil não carregou, cria um perfil mínimo para não quebrar a UI
-    if (!userProfile) {
-      userProfile = { id: currentUser.id, email: currentUser.email, balance: 0, username: currentUser.email?.split('@')[0] || 'User', is_admin: false };
+    try {
+      await withTimeout(loadUserProfile(currentUser.id), 5000);
+      // Se perfil não carregou, cria um perfil mínimo para não quebrar a UI
+      if (!userProfile) {
+        userProfile = { id: currentUser.id, email: currentUser.email, balance: 0, username: currentUser.email?.split('@')[0] || 'User', is_admin: false };
+      }
+      await withTimeout(loadMarkets(), 5000);
+      await withTimeout(loadBets(), 5000);
+    } catch(e) {
+      console.error('Erro ao inicializar sessão:', e.message);
+      if (!userProfile) {
+        userProfile = { id: currentUser.id, email: currentUser.email, balance: 0, username: currentUser.email?.split('@')[0] || 'User', is_admin: false };
+      }
+    } finally {
+      setLoading(false);
     }
-    await loadMarkets();
-    await loadBets();
-    setLoading(false);
     updateAdminNavVisibility();
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-main').classList.add('active');
@@ -1670,6 +1683,7 @@ sb.auth.onAuthStateChange(async (event, session) => {
     stopLiveTimers();
     stopRealtimeOdds();
     notifPermission = false;
+    setLoading(false);
     updateAdminNavVisibility();
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-login').classList.add('active');
