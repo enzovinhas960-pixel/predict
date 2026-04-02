@@ -455,6 +455,17 @@ if (typeof BroadcastChannel !== 'undefined') {
   };
 }
 
+// Patch Web Locks API — no Chromebook o Supabase auth usa navigator.locks e
+// lança "Lock was released because another request stole it" quando dois tabs
+// ou eventos de auth competem pelo mesmo lock. Suprimimos silenciosamente.
+if (navigator.locks) {
+  const _origLockRequest = navigator.locks.request.bind(navigator.locks);
+  navigator.locks.request = function(name, ...args) {
+    try { return _origLockRequest(name, ...args); }
+    catch(e) { return new Promise(() => {}); }
+  };
+}
+
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://wguiawtntcuejlsgvyls.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndndWlhd3RudGN1ZWpsc2d2eWxzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ1NTUzMzgsImV4cCI6MjA5MDEzMTMzOH0.b4yKAEziAzRhHS447WVoAgxpnnU_1SVkGfzOmzv1el4';
