@@ -475,6 +475,7 @@ let currentFtab = 'all'; // 'all' | 'closing' | 'hot'
 let timerInterval = null;       // intervalo do timer ao vivo
 let realtimeChannel = null;     // canal realtime do Supabase
 let notifPermission = false;    // permissão de notificações
+let isProcessingAuth = false;   // flag para evitar race condition no onAuthStateChange
 
 // ─── UTILITÁRIOS ──────────────────────────────────────────────────────────────
 function showToast(msg, err=false) {
@@ -1600,9 +1601,25 @@ async function loadUserProfile(uid) {
 
 async function loadMarkets() {
   try {
-    const {data, error} = await sb.from('markets').select('*, market_options(*)').eq('status','open').order('closes_at');
+    const {data: markets, error} = await sb.from('markets').select('*').eq('status','open').order('closes_at');
     if (error) throw error;
-    marketsData = data || [];
+
+    if (!markets || markets.length === 0) {
+      marketsData = [];
+      renderMarkets();
+      startLiveTimers();
+      return;
+    }
+
+    const ids = markets.map(m => m.id);
+    let optsMap = {};
+    const {data: opts} = await sb.from('market_options').select('*').in('market_id', ids);
+    (opts || []).forEach(o => {
+      if (!optsMap[o.market_id]) optsMap[o.market_id] = [];
+      optsMap[o.market_id].push(o);
+    });
+
+    marketsData = markets.map(m => ({ ...m, market_options: optsMap[m.id] || [] }));
   } catch(e) {
     console.error('Erro ao carregar mercados:', e.message);
     marketsData = [];
@@ -1614,13 +1631,23 @@ async function loadMarkets() {
 async function loadBets() {
   if (!currentUser) return;
   try {
-    const {data, error} = await sb.from('bets').select('*, markets(title, status)').eq('user_id', currentUser.id).order('created_at', {ascending:false});
-    if (error) throw error;
-    betsData = data || [];
+    const { data: { session } } = await sb.auth.getSession();
+    const token = session?.access_token || SUPABASE_KEY;
+    const url = SUPABASE_URL + '/rest/v1/bets?user_id=eq.' + currentUser.id
+      + '&order=created_at.desc&select=*,markets(title,status)';
+    const res = await fetch(url, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
+      }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    betsData = await res.json();
   } catch(e) {
     console.error('Erro ao carregar apostas:', e.message);
     betsData = [];
-    renderPositions(); // mostra estado vazio mesmo com erro
+    renderPositions();
     return;
   }
   renderPositions();
@@ -1639,6 +1666,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 sb.auth.onAuthStateChange(async (event, session) => {
+  if (isProcessingAuth) return;
+  isProcessingAuth = true;
+  try {
   if (session?.user) {
     currentUser = session.user;
     isGuest = false;
@@ -1687,6 +1717,9 @@ sb.auth.onAuthStateChange(async (event, session) => {
     updateAdminNavVisibility();
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-login').classList.add('active');
+  }
+  } finally {
+    isProcessingAuth = false;
   }
 });
 </script>
