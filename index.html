@@ -414,7 +414,7 @@ function updTB() {
   }
 }
 function updBal() {
-  var b = fmt(UP?.balance||0);
+  var b = fmt((UP&&UP.balance)||0);
   var e1=document.getElementById('bal1'), e2=document.getElementById('bal2');
   if(e1) e1.textContent = b;
   if(e2) e2.textContent = b;
@@ -452,8 +452,8 @@ async function doAuth() {
         toast('✅ Conta criada! R$100 de bônus!');
       }
     } else {
-      var r = await sb.auth.signInWithPassword({email:em,password:pw});
-      if (r.error) throw r.error;
+      var r2 = await sb.auth.signInWithPassword({email:em,password:pw});
+      if (r2.error) throw r2.error;
     }
   } catch(e) {
     if (e !== '_s') er.textContent = e.message || 'Erro ao autenticar.';
@@ -607,14 +607,14 @@ function renderPos() {
   var se = document.getElementById('pos-summary');
   if (se) se.innerHTML = '<div class="pos-stat"><div class="pos-stat-val" style="color:var(--blue)">'+BD.length+'</div><div class="pos-stat-lbl">Posições</div></div><div class="pos-stat"><div class="pos-stat-val" style="color:var(--amber)">'+fmt(tb)+'</div><div class="pos-stat-lbl">Investido</div></div><div class="pos-stat"><div class="pos-stat-val" style="color:var(--green)">'+fmt(tr)+'</div><div class="pos-stat-lbl">Retorno pot.</div></div>';
   var b2 = document.getElementById('bal2');
-  if (b2) b2.textContent = fmt(UP?.balance||0);
+  if (b2) b2.textContent = fmt((UP&&UP.balance)||0);
   var el = document.getElementById('positions-list');
   if (!el) return;
   if (!BD.length) { el.innerHTML = '<div class="empty-state"><div class="icon">📊</div><div class="msg">Nenhuma posição ainda.<br>Faça sua primeira previsão!</div></div>'; return; }
   var h = '';
   for (var i=0; i<BD.length; i++) {
     var b = BD[i], p = parseFloat(b.potential_return||0) - parseFloat(b.amount||0), ch = b.choice||'sim';
-    h += '<div class="pcard au s'+Math.min(i+1,5)+'"><div class="pcard-top"><div class="pcard-title">'+esc(b.markets?.title||'Evento')+'</div><div class="pcard-badge '+ch+'">'+ch.toUpperCase()+'</div></div>';
+    h += '<div class="pcard au s'+Math.min(i+1,5)+'"><div class="pcard-top"><div class="pcard-title">'+esc((b.markets&&b.markets.title)||'Evento')+'</div><div class="pcard-badge '+ch+'">'+ch.toUpperCase()+'</div></div>';
     h += '<div class="pcard-row"><span>Odd: '+b.odd+'x</span><span class="status-pill '+b.status+'">'+(b.status==='open'?'Aberta':'Encerrada')+'</span></div>';
     h += '<div class="pcard-row" style="margin-top:8px"><span>Apostado</span><span class="pcard-val">'+fmt(b.amount)+'</span></div>';
     h += '<div class="pcard-row"><span>Retorno</span><span class="pcard-val">'+fmt(b.potential_return)+'</span></div>';
@@ -643,12 +643,12 @@ function closeBet() { document.getElementById('bet-modal').classList.remove('ope
 function closeLR() { document.getElementById('lr-modal').classList.remove('open'); }
 function adjAmt(d) { bA = Math.max(0, bA + d); updBet(); }
 function addA(v) { bA += v; updBet(); }
-function setMx() { bA = Math.floor(parseFloat(UP?.balance||0)); updBet(); }
+function setMx() { bA = Math.floor(parseFloat((UP&&UP.balance)||0)); updBet(); }
 function updBet() { var odd = bC==='sim' ? CB.oddS : CB.oddN; document.getElementById('bet-amt-d').textContent = bA; document.getElementById('bet-ret-v').textContent = fmt(bA*odd); }
 
 async function confirmBet() {
   if (!bA || bA < 1) { toast('⚠️ Mínimo R$1,00', true); return; }
-  if (bA > parseFloat(UP?.balance||0)) { toast('⚠️ Saldo insuficiente', true); return; }
+  if (bA > parseFloat((UP&&UP.balance)||0)) { toast('⚠️ Saldo insuficiente', true); return; }
   var btn = document.getElementById('bet-go');
   btn.disabled = true; btn.textContent = 'Confirmando...';
   try {
@@ -861,7 +861,7 @@ async function createEv() {
 // === AUTH STATE ===
 sb.auth.onAuthStateChange(async function(ev, session) {
   console.log('[P] Auth:', ev);
-  if (session?.user) {
+  if ((session&&session.user)) {
     U = session.user;
     isG = false;
     setL(true, 'Carregando...');
